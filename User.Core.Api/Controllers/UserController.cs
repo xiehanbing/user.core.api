@@ -7,6 +7,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using User.Core.Api.Data;
+using User.Core.Api.Models;
 
 namespace User.Core.Api.Controllers
 {
@@ -74,5 +75,27 @@ namespace User.Core.Api.Controllers
             return Json(user);
         }
 
+        /// <summary>
+        /// 检查或创建（当手机号不存在是创建用户）
+        /// </summary>
+        /// <param name="phone"></param>
+        /// <returns></returns>
+        [HttpPost,Route("check-or-create")]
+        public async Task<IActionResult> CheckOrCreate(string phone)
+        {
+            Console.WriteLine("phone is :"+phone);
+           var user= await _userContext.Users.SingleOrDefaultAsync(u => u.Phone == phone);
+            //TODO 做手机号验证判断
+            if (user==null)
+            {
+                user = new AppUser()
+                {
+                    Phone = phone
+                };
+               await _userContext.Users.AddAsync(user);
+            }
+
+            return Ok(user.Id);
+        }
     }
 }
