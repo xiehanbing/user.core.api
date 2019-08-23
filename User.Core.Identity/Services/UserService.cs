@@ -7,7 +7,9 @@ using System.Threading.Tasks;
 using DnsClient;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
+using Newtonsoft.Json;
 using Resilience;
+using User.Core.Identity.Dtos;
 
 namespace User.Core.Identity.Services
 {
@@ -27,7 +29,7 @@ namespace User.Core.Identity.Services
             _logger = logger;
             Console.WriteLine("current http url:"+_userServiceUrl);
         }
-        public async Task<int> CheckOrCreate(string phone)
+        public async Task<UserInfo> CheckOrCreate(string phone)
         {
             var form = new Dictionary<string, string>() { { "phone", phone } };
             try
@@ -36,10 +38,10 @@ namespace User.Core.Identity.Services
                 if (response.StatusCode == HttpStatusCode.OK)
                 {
                     var userInfo = await response.Content.ReadAsStringAsync();
-                    int.TryParse(userInfo, out int userId);
-                    return userId;
+                    //int.TryParse(userInfo, out int userId);
+                    return JsonConvert.DeserializeObject<UserInfo>(userInfo);
                 }
-                return 0;
+                return null;
             }
             catch (Exception ex)
             {

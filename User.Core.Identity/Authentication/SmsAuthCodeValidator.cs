@@ -1,4 +1,5 @@
-﻿using System.Threading.Tasks;
+﻿using System.Security.Claims;
+using System.Threading.Tasks;
 using IdentityServer4.Models;
 using IdentityServer4.Validation;
 using User.Core.Identity.Services;
@@ -39,12 +40,20 @@ namespace User.Core.Identity.Authentication
             }
             //完成用户注册
             var userId =await _userService.CheckOrCreate(phone);
-            if (userId<=0)
+            if (userId==null)
             {
                 context.Result = errorValidationResult;
                 return;
             }
-            context.Result = new GrantValidationResult(userId.ToString(),GrantType);
+
+            var claims = new[]
+            {
+                new Claim("name", userId.Name??""),
+                new Claim("avatar", userId.Avatar??""),
+                new Claim("title", userId.Title??""),
+                new Claim("company", userId.Company??"")
+            };
+            context.Result = new GrantValidationResult(userId.Id.ToString(),GrantType,claims);
         }
 
         public string GrantType => "sms_auth_code";

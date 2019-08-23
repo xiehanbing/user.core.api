@@ -2,14 +2,14 @@
   "ReRoutes": [
     {
       "DownstreamPathTemplate": "/api/user",
-      "DownstreamScheme": "https",
+      "DownstreamScheme": "http",
       "DownstreamHostAndPorts": [
         {
           "Host": "localhost",
-          "Port": 5001
+          "Port": 5000
         }
       ],
-      "UpstreamHttpMethod": [ "Get" ],
+      "UpstreamHttpMethod": [ "Get", "Post", "Put", "Patch" ],
       "UpstreamPathTemplate": "/user",
 
       "AuthenticationOptions": {
@@ -18,7 +18,59 @@
       }
     },
     {
-      "DownstreamPathTemplate": "/connect/token",
+      "DownstreamPathTemplate": "/api/user/baseInfo/{userId}",
+      "DownstreamScheme": "http",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "localhost",
+          "Port": 5000
+        }
+      ],
+      "UpstreamHttpMethod": [ "Get", "Post", "Put", "Patch" ],
+      "UpstreamPathTemplate": "/user/baseInfo/{userId}",
+
+      "AuthenticationOptions": {
+        "AuthenticationProviderKey": "gateway_api",
+        "AllowedScopes": []
+      }
+    },
+    {
+      "DownstreamPathTemplate": "/api/user/byPhone",
+      "DownstreamScheme": "http",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "localhost",
+          "Port": 5000
+        }
+      ],
+      "UpstreamHttpMethod": [ "Get", "Post", "Put" ],
+      "UpstreamPathTemplate": "/user/byPhone",
+
+      "AuthenticationOptions": {
+        "AuthenticationProviderKey": "gateway_api",
+        "AllowedScopes": []
+      }
+    },
+    {
+      "DownstreamPathTemplate": "/api/user/tags",
+      "DownstreamScheme": "http",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "localhost",
+          "Port": 5000
+        }
+      ],
+      "UpstreamHttpMethod": [ "Get", "Post", "Put" ],
+      "UpstreamPathTemplate": "/user/tags",
+
+      "AuthenticationOptions": {
+        "AuthenticationProviderKey": "gateway_api",
+        "AllowedScopes": []
+      }
+    },
+
+    {
+      "DownstreamPathTemplate": "/connect/{catchAll}",
       "DownstreamScheme": "http",
       "DownstreamHostAndPorts": [
         {
@@ -27,15 +79,103 @@
         }
       ],
       "UpstreamHttpMethod": [ "Post" ],
-      "UpstreamPathTemplate": "/connect/token",
-
+      "UpstreamPathTemplate": "/connect/{catchAll}"
+    },
+    {
+      "DownstreamPathTemplate": "/api/contact",
+      "DownstreamScheme": "http",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "localhost",
+          "Port": 5006
+        }
+      ],
+      "UpstreamHttpMethod": [ "Get" ],
+      "UpstreamPathTemplate": "/contact",
       "AuthenticationOptions": {
         "AuthenticationProviderKey": "gateway_api",
-        "AllowedScopes": []
+        "AllowedScopes": [ "contact_api" ]
       }
+    },
+    {
+      "DownstreamPathTemplate": "/api/contact/tags",
+      "DownstreamScheme": "http",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "localhost",
+          "Port": 5006
+        }
+      ],
+      "UpstreamHttpMethod": [ "Get" ],
+      "UpstreamPathTemplate": "/contact/tag",
+      "AuthenticationOptions": {
+        "AuthenticationProviderKey": "gateway_api",
+        "AllowedScopes": [ "contact_api" ]
+      }
+    },
+    {
+      "DownstreamPathTemplate": "/api/contact/apply-requests/{userId}",
+      "DownstreamScheme": "http",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "localhost",
+          "Port": 5006
+        }
+      ],
+      "UpstreamHttpMethod": [ "Get", "Post" ],
+      "UpstreamPathTemplate": "/contact/apply-requests/{userId}",
+      "AuthenticationOptions": {
+        "AuthenticationProviderKey": "gateway_api",
+        "AllowedScopes": [ "contact_api" ]
+      }
+    },
+    {
+      "DownstreamPathTemplate": "/api/contact/apply-requests",
+      "DownstreamScheme": "http",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "localhost",
+          "Port": 5006
+        }
+      ],
+      "UpstreamHttpMethod": [ "Get", "Post" ],
+      "UpstreamPathTemplate": "/contact/apply-requests",
+      "AuthenticationOptions": {
+        "AuthenticationProviderKey": "gateway_api",
+        "AllowedScopes": [ "contact_api" ]
+      }
+    },
+    {
+      "DownstreamPathTemplate": "/api/contact/approve-apply-requests",
+      "DownstreamScheme": "http",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "localhost",
+          "Port": 5006
+        }
+      ],
+      "UpstreamHttpMethod": [ "Put" ],
+      "UpstreamPathTemplate": "/contact/approve-apply-requests",
+      "AuthenticationOptions": {
+        "AuthenticationProviderKey": "gateway_api",
+        "AllowedScopes": [ "contact_api" ]
+      }
+    },
+    {
+      "DownstreamPathTemplate": "/.well-known/{catchAll}",
+      "DownstreamScheme": "http",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "localhost",
+          "Port": 5002
+        }
+      ],
+      "UpstreamPathTemplate": "/.well-known/{catchAll}",
+      "UpstreamHttpMethod": [ "Get" ]
     }
+
   ],
   "GlobalConfiguration": {
-    "BaseUrl": "https://localhost:5004"
+    "BaseUrl": "http://localhost:5004"
   }
 }

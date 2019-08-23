@@ -16,26 +16,6 @@ namespace User.Core.Identity
             {
                 new Client()
                 {
-                    ClientId = "iphone",
-                    ClientSecrets = new List<Secret>()
-                    {
-                        new Secret("secret".Sha256())
-                    },
-                    RefreshTokenExpiration = TokenExpiration.Sliding,
-                    AllowOfflineAccess = true,
-                    RequireClientSecret = false,
-                    AllowedGrantTypes = new List<string>(){"sms_auth_code"},
-                    AlwaysIncludeUserClaimsInIdToken = true,
-                    AllowedScopes = new List<string>()
-                    {
-                        "gateway_api",
-                        IdentityServerConstants.StandardScopes.OpenId,
-                        IdentityServerConstants.StandardScopes.Profile,
-                        IdentityServerConstants.StandardScopes.OfflineAccess
-                    }
-                },
-                new Client()
-                {
                     ClientId = "android",
                     ClientSecrets = new List<Secret>()
                     {
@@ -49,6 +29,8 @@ namespace User.Core.Identity
                     AllowedScopes = new List<string>()
                     {
                         "gateway_api",
+                        "contact_api",
+                        "user_api",
                         IdentityServerConstants.StandardScopes.OpenId,
                         IdentityServerConstants.StandardScopes.Profile,
                         IdentityServerConstants.StandardScopes.OfflineAccess
@@ -71,7 +53,9 @@ namespace User.Core.Identity
         {
             return new List<ApiResource>()
             {
-                new ApiResource("gateway_api","user service")
+                new ApiResource("gateway_api","user service"),
+                new ApiResource("contact_api","contact service"),
+                new ApiResource("user_api","user service"),
             };
         }
     }

@@ -31,6 +31,7 @@ namespace Gateway.Api
                     options.SupportedTokens = SupportedTokens.Both;
                     options.ApiSecret = "secret";
                     options.RequireHttpsMetadata = false;
+                    //options.
                 });
                
             services.AddOcelot();

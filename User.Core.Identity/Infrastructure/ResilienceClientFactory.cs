@@ -47,10 +47,11 @@ namespace User.Core.Identity.Infrastructure
                 Policy.Handle<HttpRequestException>()
                     .CircuitBreakerAsync(_exceptionCountAllowedBeforeBreaking,
                         TimeSpan.FromMinutes(1),
-                        (exception, duration) =>
+                        onBreak:(exception, duration) =>
                         {
                             _logger.LogError("熔断器打开");
-                        },() =>
+                        },
+                        onReset:() =>
                         {
                             _logger.LogError("熔断器关闭");
                         })
