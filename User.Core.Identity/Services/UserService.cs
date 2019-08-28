@@ -29,7 +29,7 @@ namespace User.Core.Identity.Services
             _logger = logger;
             Console.WriteLine("current http url:"+_userServiceUrl);
         }
-        public async Task<UserInfo> CheckOrCreate(string phone)
+        public async Task<UserInfo> CheckOrCreateAsync(string phone)
         {
             var form = new Dictionary<string, string>() { { "phone", phone } };
             try
@@ -45,7 +45,7 @@ namespace User.Core.Identity.Services
             }
             catch (Exception ex)
             {
-                _logger.LogError("CheckOrCreate 在 重试之后 失败，"+ex.Message+ex.StackTrace);
+                _logger.LogError("CheckOrCreateAsync 在 重试之后 失败，" + ex.Message+ex.StackTrace);
                 throw ex;
             }
           

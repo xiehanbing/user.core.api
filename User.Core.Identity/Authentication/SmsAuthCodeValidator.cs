@@ -39,7 +39,7 @@ namespace User.Core.Identity.Authentication
                 
             }
             //完成用户注册
-            var userId =await _userService.CheckOrCreate(phone);
+            var userId =await _userService.CheckOrCreateAsync(phone);
             if (userId==null)
             {
                 context.Result = errorValidationResult;

@@ -114,7 +114,7 @@
       }
     },
     {
-      "DownstreamPathTemplate": "/api/contact/apply-requests/{userId}",
+      "DownstreamPathTemplate": "/api/contact/add-apply-requests/{userId}",
       "DownstreamScheme": "http",
       "DownstreamHostAndPorts": [
         {
@@ -122,8 +122,8 @@
           "Port": 5006
         }
       ],
-      "UpstreamHttpMethod": [ "Get", "Post" ],
-      "UpstreamPathTemplate": "/contact/apply-requests/{userId}",
+      "UpstreamHttpMethod": [ "Post" ],
+      "UpstreamPathTemplate": "/contact/add-apply-requests/{userId}",
       "AuthenticationOptions": {
         "AuthenticationProviderKey": "gateway_api",
         "AllowedScopes": [ "contact_api" ]
@@ -138,7 +138,7 @@
           "Port": 5006
         }
       ],
-      "UpstreamHttpMethod": [ "Get", "Post" ],
+      "UpstreamHttpMethod": [ "Get" ],
       "UpstreamPathTemplate": "/contact/apply-requests",
       "AuthenticationOptions": {
         "AuthenticationProviderKey": "gateway_api",
@@ -172,7 +172,92 @@
       ],
       "UpstreamPathTemplate": "/.well-known/{catchAll}",
       "UpstreamHttpMethod": [ "Get" ]
+    },
+
+    {
+      "DownstreamPathTemplate": "/api/projects",
+      "DownstreamScheme": "http",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "localhost",
+          "Port": 5007
+        }
+      ],
+      "UpstreamHttpMethod": [ "Get", "Patch", "Post" ],
+      "UpstreamPathTemplate": "/projects",
+      "AuthenticationOptions": {
+        "AuthenticationProviderKey": "gateway_api",
+        "AllowedScopes": [ "project_api" ]
+      }
+    },
+
+    {
+      "DownstreamPathTemplate": "/api/projects/my/{projectId}",
+      "DownstreamScheme": "http",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "localhost",
+          "Port": 5007
+        }
+      ],
+      "UpstreamHttpMethod": [ "Get" ],
+      "UpstreamPathTemplate": "/projects/my/{projectId}",
+      "AuthenticationOptions": {
+        "AuthenticationProviderKey": "gateway_api",
+        "AllowedScopes": [ "project_api" ]
+      }
+    },
+
+    {
+      "DownstreamPathTemplate": "/api/projects/recommends/{projectId}",
+      "DownstreamScheme": "http",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "localhost",
+          "Port": 5007
+        }
+      ],
+      "UpstreamHttpMethod": [ "Get" ],
+      "UpstreamPathTemplate": "/projects/recommends/{projectId}",
+      "AuthenticationOptions": {
+        "AuthenticationProviderKey": "gateway_api",
+        "AllowedScopes": [ "project_api" ]
+      }
+    },
+
+    {
+      "DownstreamPathTemplate": "/api/projects/view/{projectId}",
+      "DownstreamScheme": "http",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "localhost",
+          "Port": 5007
+        }
+      ],
+      "UpstreamHttpMethod": [ "Put" ],
+      "UpstreamPathTemplate": "/projects/view/{projectId}",
+      "AuthenticationOptions": {
+        "AuthenticationProviderKey": "gateway_api",
+        "AllowedScopes": [ "project_api" ]
+      }
+    },
+    {
+      "DownstreamPathTemplate": "/api/projects/join",
+      "DownstreamScheme": "http",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "localhost",
+          "Port": 5007
+        }
+      ],
+      "UpstreamHttpMethod": [ "Put" ],
+      "UpstreamPathTemplate": "/projects/join",
+      "AuthenticationOptions": {
+        "AuthenticationProviderKey": "gateway_api",
+        "AllowedScopes": [ "project_api" ]
+      }
     }
+
 
   ],
   "GlobalConfiguration": {

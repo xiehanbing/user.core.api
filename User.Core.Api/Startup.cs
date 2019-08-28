@@ -61,16 +61,53 @@ namespace User.Core.Api
                     options.Authority = "http://localhost:5004";
 
                 });
+
+
+            services.AddCap(options =>
+            {
+                //options.UseEntityFramework<UserContext>();
+                //cap usesqlserver 此方法默认使用的数据库Schema为Cap 这种方式  最低要求为sqlserver 2012 （(因为使用了Dashboard的sql查询语句使用了Format新函数）
+                //options.UseSqlServer(Configuration.GetConnectionString("DefaultConnection"));
+
+                // 此方法可以指定是否使用sql server2008,数据库Schema,链接字符串
+                options.UseSqlServer(sqloptions =>
+                    {
+                        //数据库连接字符串
+                        sqloptions.ConnectionString = Configuration.GetConnectionString("DefaultConnection");
+                        sqloptions.UseSqlServer2008();
+
+                    });
+                options.UseRabbitMQ(rb =>
+                {
+                    rb.HostName = "127.0.0.1";
+                    rb.UserName = "guest";
+                    rb.Password = "guest";
+                    rb.Port = 5672;
+                });
+                options.UseDashboard();
+                options.UseDiscovery(d =>
+                {
+                    d.DiscoveryServerHostName = "localhost";
+                    d.DiscoveryServerPort = 8500;
+                    d.CurrentNodePort = 5000;
+                    d.NodeId ="1";
+                    d.NodeName = "CAP NO.1 Node";
+                });
+                //options.FailedRetryCount = 2;
+                //options.FailedRetryInterval = 5;
+            });
+
             services.AddMvc(options =>
             {
                 options.Filters.Add(typeof(GlobalExceptionFilter));
 
             }).SetCompatibilityVersion(CompatibilityVersion.Version_2_2);
+
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
-        public void Configure(IApplicationBuilder app, IHostingEnvironment env,ILoggerFactory loggerFactory,
-            IApplicationLifetime applicationLifetime, 
+        public void Configure(IApplicationBuilder app, IHostingEnvironment env, ILoggerFactory loggerFactory,
+            IApplicationLifetime applicationLifetime,
             IOptions<ServiceDisvoveryOptions> serviceOptions,
             IConsulClient consul)
         {
@@ -84,14 +121,16 @@ namespace User.Core.Api
                 app.UseHsts();
             }
             app.UseAuthentication();
+            //app.UseCap();
             //启动时候 注册服务
-            applicationLifetime.ApplicationStarted.Register(() => ResiterService(app, serviceOptions, consul,applicationLifetime));
+            applicationLifetime.ApplicationStarted.Register(() => ResiterService(app, serviceOptions, consul, applicationLifetime));
 
             //todo  停止时 移除服务
             applicationLifetime.ApplicationStopped.Register(() => DeRegisterService(app, serviceOptions, consul));
 
-            app.UseHttpsRedirection();
+            //app.UseHttpsRedirection();
             app.UseMvc();
+
             UserContextSeed.SeedAsync(app, loggerFactory).Wait();
         }
         /// <summary>
@@ -101,10 +140,10 @@ namespace User.Core.Api
         /// <param name="serviceOptions"></param>
         /// <param name="consul"></param>
         /// <param name="applicationLifetime"></param>
-        private void ResiterService(IApplicationBuilder app, IOptions<ServiceDisvoveryOptions> serviceOptions,IConsulClient consul,IApplicationLifetime applicationLifetime)
+        private void ResiterService(IApplicationBuilder app, IOptions<ServiceDisvoveryOptions> serviceOptions, IConsulClient consul, IApplicationLifetime applicationLifetime)
         {
-           
-            var addresses= GetCurrentUri(app);
+
+            var addresses = GetCurrentUri(app);
             if (addresses == null) return;
             foreach (var address in addresses)
             {
@@ -120,7 +159,7 @@ namespace User.Core.Api
                 {
                     Checks = new[] { httpCheck },
                     Address = address.Host,
-                    
+
                     ID = serviceId,
                     Name = serviceOptions.Value.ServiceName,
                     Port = address.Port
@@ -144,7 +183,7 @@ namespace User.Core.Api
             if (addresses == null) return;
             foreach (var address in addresses)
             {
-                var serviceId= $"{serviceOptions.Value.ServiceName}_{address.Host}:{address.Port}";
+                var serviceId = $"{serviceOptions.Value.ServiceName}_{address.Host}:{address.Port}";
                 consul.Agent.ServiceDeregister(serviceId).GetAwaiter().GetResult();
             }
         }
@@ -162,5 +201,5 @@ namespace User.Core.Api
     }
 
 
-   
+
 }

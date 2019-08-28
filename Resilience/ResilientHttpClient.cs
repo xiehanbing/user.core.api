@@ -58,6 +58,12 @@ namespace Resilience
             return response;
         }
 
+        public  Task<HttpResponseMessage> GetAsync(string url, string authorizationToken = null, string requestId = null,
+            string authorizationMethod = "Bearer")
+        {
+          return  DoGetAsync(HttpMethod.Get, url, authorizationToken, requestId, authorizationMethod);
+        }
+
         private Task<HttpResponseMessage> DoPostAsync(HttpMethod method, string url, Func<HttpRequestMessage> requestMessageAction,
             string authorizationToken, string requestId = null,
             string authorizationMethod = "Bearer")
@@ -92,6 +98,43 @@ namespace Resilience
                 return response;
             });
         }
+
+        private Task<HttpResponseMessage> DoGetAsync(HttpMethod method, string url,
+            string authorizationToken, string requestId = null,
+            string authorizationMethod = "Bearer")
+        {
+            if (method != HttpMethod.Get && method != HttpMethod.Delete)
+            {
+                throw new ArgumentException("Value must be either get or delete", nameof(method));
+            }
+
+            var origin = GetOriginFromUri(url);
+            return HttpInvokeAync(origin, async () =>
+            {
+                var requestMessage = new HttpRequestMessage(method, url);
+
+                SetAuthorizationHeader(requestMessage);
+                if (authorizationToken != null)
+                {
+                    requestMessage.Headers.Authorization =
+                        new AuthenticationHeaderValue(authorizationMethod, authorizationToken);
+                }
+
+                if (requestId != null)
+                {
+                    requestMessage.Headers.Add("x-requestid", requestId);
+                }
+
+                var response = await _httpClient.GetAsync(url);
+                if (response.StatusCode == HttpStatusCode.InternalServerError)
+                {
+                    throw new HttpRequestException(url);
+                }
+                return response;
+            });
+        
+        }
+
         private async Task<T> HttpInvokeAync<T>(string origin, Func<Task<T>> action)
         {
             var normalizeOrigin = NormalizeOrigin(origin);

@@ -4,6 +4,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using DotNetCore.CAP;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using Moq;
@@ -38,7 +39,8 @@ namespace User.Api.UnitTest
             var context = GetUserContext();
             var loggerMoq = new Mock<ILogger<UserController>>();
             var logger = loggerMoq.Object;
-            var controller = new UserController(context, logger);
+            var cap=new Mock<ICapPublisher>().Object;
+            var controller = new UserController(context, logger, cap);
             return (controller,context);
         }
         [Fact]

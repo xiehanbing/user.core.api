@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using DotNetCore.CAP;
 using Microsoft.AspNetCore.JsonPatch;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -18,10 +19,32 @@ namespace User.Core.Api.Controllers
     {
         private readonly UserContext _userContext;
         private readonly ILogger<UserController> _logger;
-        public UserController(UserContext userContext, ILogger<UserController> logger)
+        private readonly ICapPublisher _capPublisher; 
+
+        public UserController(UserContext userContext, ILogger<UserController> logger,
+            ICapPublisher capPublisher)
         {
             _userContext = userContext;
             _logger = logger;
+            _capPublisher = capPublisher;
+        }
+        private void RaiseUserprofileChanedEvent(Models.AppUser user)
+        {
+            if (_userContext.Entry(user).Property(nameof(user.Name)).IsModified ||
+                _userContext.Entry(user).Property(nameof(user.Title)).IsModified ||
+                _userContext.Entry(user).Property(nameof(user.Company)).IsModified ||
+                _userContext.Entry(user).Property(nameof(user.Avatar)).IsModified
+            )
+            {
+                _capPublisher.Publish("finbook.userapi.userprofilechanged",new IntegrationEvent.UserprofileChangedEvent()
+                {
+                    UserId = user.Id,
+                    Name = user.Name,
+                    Title = user.Title,
+                    Company = user.Company,
+                    Avatar = user.Avatar,
+                });
+            }
         }
         /// <summary>
         /// 获取用户
@@ -41,6 +64,9 @@ namespace User.Core.Api.Controllers
             }
             return new JsonResult(user);
         }
+
+   
+
         /// <summary>
         /// 更新属性
         /// </summary>
@@ -72,7 +98,18 @@ namespace User.Core.Api.Controllers
 
             }
 
-            await _userContext.SaveChangesAsync();
+            using (var transction = _userContext.Database.BeginTransaction())
+            {
+                //发布用户变更消息
+                RaiseUserprofileChanedEvent(user);
+
+                _userContext.Users.Update(user);
+                await _userContext.SaveChangesAsync();
+             
+
+                transction.Commit();
+            }
+          
             return Json(user);
         }
 
@@ -96,6 +133,7 @@ namespace User.Core.Api.Controllers
                 await _userContext.Users.AddAsync(user);
             }
 
+            await _userContext.SaveChangesAsync();
             return Ok(new
             {
                 user.Id,user.Name,user.Company,user.Title,user.Avatar
@@ -157,7 +195,7 @@ namespace User.Core.Api.Controllers
         /// </summary>
         /// <param name="userId"></param>
         /// <returns></returns>
-        [HttpPost,Route("baseinfo/{userId}")]
+        [HttpGet,Route("baseinfo/{userId}")]
         public async Task<IActionResult> FindByUserId(int userId)
         {
             var user = await _userContext.Users.SingleOrDefaultAsync(u => u.Id == userId);
